@@ -1,25 +1,25 @@
-# Ember-computed-indirect
+# ember-computed-indirect
 
-This README outlines the details of collaborating on this Ember addon.
+This is a small Ember addon that helps deal with indirect or dynamic computed properties. What this means
+is that you can have one property store a reference to the property you would really like to watch,
+getting updates when either the referenced property or the reference changes. Example:
+ 
+```js
+import computedIndirect from 'ember-computed-indirect/utils/indirect';
 
-## Installation
+var object = Ember.Object.extend({
+  source1: 'value1',
+  source2: 'value2',
+  path: 'source1',
+  value: computedIndirect('path')
+}).create();
 
-* `git clone` this repository
-* `npm install`
-* `bower install`
+object.get('value'); // 'value1'
+object.set('value', 'newvalue');
+object.get('source1'); // 'newvalue'
+object.set('path', 'source2');
+object.get('value'); // 'value2'
+```
 
-## Running
-
-* `ember server`
-* Visit your app at http://localhost:4200.
-
-## Running Tests
-
-* `ember test`
-* `ember test --server`
-
-## Building
-
-* `ember build`
-
-For more information on using ember-cli, visit [http://www.ember-cli.com/](http://www.ember-cli.com/).
+You can also access the function globally via `Ember.computed.indirect`. This may or may not be removed in the future,
+but I'm going to keep it for now because I like the consistency with other Ember computed helpers.
