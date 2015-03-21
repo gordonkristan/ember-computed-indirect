@@ -1,5 +1,5 @@
 import Ember from 'ember';
-import { test } from 'ember-qunit';
+import { module, test } from 'qunit';
 import computedIndirect from 'ember-computed-indirect/utils/indirect';
 
 var IndirectObject = Ember.Object.extend({
@@ -18,52 +18,64 @@ module('Indirect Computed Test', {
   }
 });
 
-test('reading indirect property gets source value', function() {
-  expect(1);
+test('reading indirect property gets source value', function(assert) {
+  assert.expect(1);
 
-  strictEqual(object.get('value'), 'value1');
+  assert.strictEqual(object.get('value'), 'value1');
 });
 
-test('updating indirect property updates source value', function() {
-  expect(4);
+test('updating indirect property updates source value', function(assert) {
+  assert.expect(4);
 
-  strictEqual(object.get('value'), 'value1');
-  strictEqual(object.get('source1'), 'value1');
+  assert.strictEqual(object.get('value'), 'value1');
+  assert.strictEqual(object.get('source1'), 'value1');
 
   object.set('value', 'newvalue');
 
-  strictEqual(object.get('value'), 'newvalue');
-  strictEqual(object.get('source1'), 'newvalue');
+  assert.strictEqual(object.get('value'), 'newvalue');
+  assert.strictEqual(object.get('source1'), 'newvalue');
 });
 
-test('updating source value fires indirect observer', function() {
-	expect(1);
-  stop();
+test('updating source value fires indirect observer', function(assert) {
+	assert.expect(0);
+
+  var deferred = Ember.RSVP.defer();
 
   object.get('value');
   object.addObserver('value', object, function() {
-    start();
-    strictEqual(this.get('value'), 'newvalue');
+    if (this.get('value') === 'newvalue') {
+      deferred.resolve();
+    } else {
+      throw new Error();
+    }
   });
 
   object.set('source1', 'newvalue');
+
+  return deferred.promise;
 });
 
-test('updating path property fires indirect observer', function() {
-	expect(1);
-  stop();
+test('updating path property fires indirect observer', function(assert) {
+	assert.expect(0);
+
+  var deferred = Ember.RSVP.defer();
 
   object.get('value');
   object.addObserver('value', object, function() {
-    start();
-    strictEqual(this.get('value'), 'value2');
+    if (this.get('value') === 'value2') {
+      deferred.resolve();
+    } else {
+      throw new Error();
+    }
   });
 
   object.set('path', 'source2');
+
+  return deferred.promise;
 });
 
-test('observers are torn down correctly', function() {
-  expect(0);
+test('observers are torn down correctly', function(assert) {
+  assert.expect(0);
 
   // Create two test objects
   var t1 = IndirectObject.create({ path: 'source1' });
