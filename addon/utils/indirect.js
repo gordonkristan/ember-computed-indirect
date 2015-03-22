@@ -1,8 +1,9 @@
 export default function indirect(middlePropertyName) {
-  var lastSourcePropertyName = '__indirect:' + middlePropertyName;
-  var sourcePropertyObserverName = '__indirect:' + middlePropertyName;
-
   return function(key, value) {
+    // TODO: I don't like using `key`. Can we do better?
+    var lastSourcePropertyName = '__indirect_lastSourceProperty:' + key;
+    var sourcePropertyObserverName = '__indirect_sourcePropertyObserver:' + key;
+
     var sourceProperty = this.get(middlePropertyName);
     var lastSourceProperty = this[lastSourcePropertyName];
     var sourcePropertyObserver = this[sourcePropertyObserverName];
