@@ -1,30 +1,42 @@
-export default function indirect(middlePropertyName) {
-  return function(key, value) {
-    // TODO: I don't like using `key`. Can we do better?
-    var lastSourcePropertyName = '__indirect_lastSourceProperty:' + key;
-    var sourcePropertyObserverName = '__indirect_sourcePropertyObserver:' + key;
+import Ember from 'ember';
 
-    var sourceProperty = this.get(middlePropertyName);
-    var lastSourceProperty = this[lastSourcePropertyName];
-    var sourcePropertyObserver = this[sourcePropertyObserverName];
+var get = Ember.get;
+var set = Ember.set;
 
-    if (lastSourceProperty !== sourceProperty) {
-      if (lastSourceProperty && sourcePropertyObserver) {
-        this.removeObserver(lastSourceProperty, this, sourcePropertyObserver);
+export default function indirect(pathProperty) {
+
+  return Ember.computed(pathProperty, {
+    get: function getIndirectPropertyValue(key) {
+
+      var metaSourceKey = 'source.' + key;
+      var metaObserverKey = 'observer.' + key;
+      // Use a Ember.meta instead of storing meta info on the object itself
+      var _meta = Ember.meta(this, true);
+      _meta = _meta.__indirect__ || (_meta.__indirect__ = {});
+
+      var metaObserver = _meta[metaObserverKey];
+      if (!metaObserver) {
+        _meta[metaObserverKey] = metaObserver = function() {
+          this.notifyPropertyChange(key);
+        };
       }
 
-      this[sourcePropertyObserverName] = function() {
-        this.notifyPropertyChange(key);
-      };
+      var currentKey = get(this, pathProperty);
+      if (currentKey !== _meta[metaSourceKey]) {
+        if (_meta[metaSourceKey]) {
+          Ember.removeObserver(this, _meta[metaSourceKey], this, metaObserver);
+        }
+        if (currentKey) {
+          Ember.addObserver(this, currentKey, this, metaObserver);
+        }
+        _meta[metaSourceKey] = currentKey;
+      }
 
-      this.addObserver(sourceProperty, this, this[sourcePropertyObserverName]);
-      this[lastSourcePropertyName] = sourceProperty;
+      return currentKey && get(this, currentKey);
+    },
+
+    set: function setIndirectPropertyValue(key, value) {
+      return set(this, get(this, pathProperty), value);
     }
-
-    if (arguments.length > 1) {
-      this.set(sourceProperty, value);
-    }
-
-    return this.get(sourceProperty);
-  }.property(middlePropertyName);
+  });
 }
