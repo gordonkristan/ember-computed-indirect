@@ -21,5 +21,26 @@ object.set('path', 'source2');
 object.get('value'); // 'value2'
 ```
 
+There also is nothing stoping you from making the `path` itself a computed property:
+
+```js
+var object = Ember.Object.extend({
+  originalObject: { original: true },
+  editingObject: { editing: true },
+
+  editing: false,
+  objectPath: Ember.computed('editing', function() {
+    return this.get('editing') ? 'editingObject' : 'originalObject'
+  },
+  
+  currentObject: computedIndirect('objectPath')
+}).create();
+
+object.get('currentObject'); // { original: true }
+object.toggleProperty('editing');
+object.get('currentObject'); // { editing: true }
+```
+
+
 You can also access the function globally via `Ember.computed.indirect`. This may or may not be removed in the future,
 but I'm going to keep it for now because I like the consistency with other Ember computed helpers.
