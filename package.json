@@ -1,6 +1,6 @@
 {
   "name": "ember-computed-indirect",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "A small addon to help declare dynamic (or indirect) computed properties.",
   "directories": {
     "doc": "doc",
