@@ -8,6 +8,10 @@ var IndirectObject = Ember.Object.extend({
   value: computedIndirect('path')
 });
 
+var BoundObject = Ember.Object.extend({
+  valueBinding: 'object.value'
+});
+
 var object = null;
 
 module('Indirect Computed Test', {
@@ -96,4 +100,18 @@ test('observers are torn down correctly', function(assert) {
 
   // Make sure that the first object's observer was left alone when we changed the second object's path
   t1.set('source1', null);
+});
+
+test('binding value fires observer only once', function(assert) {
+  assert.expect(1);
+
+  var bound = BoundObject.create({ object });
+
+  object.addObserver('value', object, function() {
+    assert.strictEqual(this.get('value'), 'newvalue');
+  });
+
+  Ember.run(function() {
+    object.set('value', 'newvalue');
+  });
 });
