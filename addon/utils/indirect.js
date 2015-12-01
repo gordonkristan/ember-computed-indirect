@@ -9,25 +9,18 @@ export default function indirect(pathProperty) {
     get: function getIndirectPropertyValue(key) {
 
       var metaSourceKey = 'source.' + key;
-      var metaObserverKey = 'observer.' + key;
+      var metaBindingKey = 'binding.' + key;
       // Use a Ember.meta instead of storing meta info on the object itself
       var _meta = Ember.meta(this, true);
       _meta = _meta.__indirect__ || (_meta.__indirect__ = {});
 
-      var metaObserver = _meta[metaObserverKey];
-      if (!metaObserver) {
-        _meta[metaObserverKey] = metaObserver = function() {
-          this.notifyPropertyChange(key);
-        };
-      }
-
       var currentKey = get(this, pathProperty);
       if (currentKey !== _meta[metaSourceKey]) {
-        if (_meta[metaSourceKey]) {
-          Ember.removeObserver(this, _meta[metaSourceKey], this, metaObserver);
+        if (_meta[metaBindingKey]) {
+          _meta[metaBindingKey].disconnect(this);
         }
         if (currentKey) {
-          Ember.addObserver(this, currentKey, this, metaObserver);
+          _meta[metaBindingKey] = Ember.Binding.from(currentKey).to(key).connect(this);
         }
         _meta[metaSourceKey] = currentKey;
       }

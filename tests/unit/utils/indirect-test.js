@@ -34,7 +34,9 @@ test('updating indirect property updates source value', function(assert) {
   assert.strictEqual(object.get('value'), 'value1');
   assert.strictEqual(object.get('source1'), 'value1');
 
-  object.set('value', 'newvalue');
+  Ember.run(function () {
+    object.set('value', 'newvalue');
+  });
 
   assert.strictEqual(object.get('value'), 'newvalue');
   assert.strictEqual(object.get('source1'), 'newvalue');
@@ -54,7 +56,9 @@ test('updating source value fires indirect observer', function(assert) {
     }
   });
 
-  object.set('source1', 'newvalue');
+  Ember.run(function () {
+    object.set('source1', 'newvalue');
+  });
 
   return deferred.promise;
 });
@@ -73,7 +77,9 @@ test('updating path property fires indirect observer', function(assert) {
     }
   });
 
-  object.set('path', 'source2');
+  Ember.run(function () {
+    object.set('path', 'source2');
+  });
 
   return deferred.promise;
 });
@@ -90,7 +96,9 @@ test('observers are torn down correctly', function(assert) {
   t2.get('value');
 
   // Change the path of the second object and activate the observer
-  t1.set('path', 'source2');
+  Ember.run(function () {
+    t1.set('path', 'source2');
+  });
   t1.get('value');
 
   // Set an observer on the first object
@@ -99,7 +107,9 @@ test('observers are torn down correctly', function(assert) {
   });
 
   // Make sure that the first object's observer was left alone when we changed the second object's path
-  t1.set('source1', null);
+  Ember.run(function () {
+    t1.set('source1', null);
+  });
 });
 
 test('binding value fires observer only once', function(assert) {
