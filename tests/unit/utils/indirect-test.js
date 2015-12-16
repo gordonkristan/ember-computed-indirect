@@ -1,6 +1,6 @@
 import Ember from 'ember';
 import { module, test } from 'qunit';
-import computedIndirect from 'ember-computed-indirect/utils/indirect';
+import computedIndirect from 'ember-computed-indirect';
 
 var IndirectObject = Ember.Object.extend({
   source1: 'value1',

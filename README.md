@@ -5,7 +5,7 @@ is that you can have one property store a reference to the property you would re
 getting updates when either the referenced property or the reference changes. Example:
  
 ```js
-import computedIndirect from 'ember-computed-indirect/utils/indirect';
+import computedIndirect from 'ember-computed-indirect';
 
 var object = Ember.Object.extend({
   source1: 'value1',
